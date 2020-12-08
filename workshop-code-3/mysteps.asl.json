@@ -1,0 +1,49 @@
+{
+	"Comment": "A state-machine to process logistic regression cost.",
+	"StartAt": "process_input_files",
+	"TimeoutSeconds": 10,
+	"States":
+	{
+		"process_input_files": {
+			"Type": "Task",
+			"Resource": "arn:aws:lambda:ap-south-1:684473352813:function:process_input_files",
+			"Next": "apply_non_linearity"
+		},
+		"apply_non_linearity": {
+			"Type": "Task",
+			"Resource": "arn:aws:lambda:ap-south-1:684473352813:function:apply_non_linearity",
+			"Next": "cost_computation"
+		},
+		"cost_computation": {
+			"Type": "Parallel",
+			"Next": "consolidate",
+			"Branches": [
+				{
+					"StartAt": "cost_1",
+					"States": {
+						"cost_1": {
+							"Type": "Task",
+							"Resource": "arn:aws:lambda:ap-south-1:684473352813:function:compute_cost_1",
+							"End": true
+						}
+					}
+				},
+				{
+					"StartAt": "cost_2",
+					"States": {
+						"cost_2": {
+							"Type": "Task",
+							"Resource": "arn:aws:lambda:ap-south-1:684473352813:function:compute_cost_2",
+							"End": true
+						}
+					}
+				}
+			]
+		},
+		"consolidate": {
+			"Type": "Task",
+			"Resource": "arn:aws:lambda:ap-south-1:684473352813:function:consolidate_cost",
+			"End": true
+		}
+	}
+}
